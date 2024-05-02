@@ -1,0 +1,61 @@
+{
+name: "Supply",		// Connection info for CAEN_HV_InitSystem()
+index: "HV0",			// Copy this block for multiple HV systems
+system: "SY5527",		// System type
+LinkType: 0,			// Connection type (TCP/IP=0, USB 2.0=3, Optical link=4, USB VCP=5)
+IP: "192.168.0.1",		// IP address in case of TCP/IP connection
+Username: "admin",		// Username (default "admin")
+Password: "admin",		// Password (default "admin")
+}
+
+{
+name: "BD0",
+index: "HV0",
+slot: 1,
+}
+
+{
+name: "CH0",
+index: "HV0-BD0",
+V0Set: 250,
+SVMax: 2500,
+enable: false,
+}
+
+{
+name: "BD1",
+index: "HV0",
+slot: 3,
+}
+
+{
+name: "CH0",
+index: "HV0-BD1",
+V0Set: 1740,
+SVMax: 2500,
+enable: true,
+}
+
+{
+name: "CH1",
+index: "HV0-BD1",
+V0Set: 1520,
+SVMax: 2500,
+enable: true,
+}
+
+{
+name: "CH2",
+index: "HV0-BD1",
+V0Set: 1610,
+SVMax: 2500,
+enable: true,
+}
+
+{
+name: "CH3",
+index: "HV0-BD1",
+V0Set: 1440,
+SVMax: 2500,
+enable: true,
+}

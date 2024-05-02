@@ -1,0 +1,5 @@
+RunControl1 RunControl configfiles/test/RunControlConfig
+ReadBoard1 ReadBoard configfiles/test/config_b1
+#ReadBoard2 ReadBoard configfiles/led/config_b2
+#ReadBoard3 ReadBoard configfiles/led/config_b3
+HVControl1 HVControl configfiles/HV/hvconfig

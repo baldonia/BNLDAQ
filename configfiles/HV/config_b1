@@ -1,0 +1,38 @@
+# Config file for Board 1
+
+# Print out confirmation messages
+verbose 1
+
+# Print out data acquisition rate
+show_data_rate 1 
+
+# Connection settings
+VME_bridge 1 # Use VME bridge
+address 0x32100000 # VME base address
+LinkNum 0 # Optical link number
+ConetNode 0 # Conet node number in daisy chain
+bID 1 # Board ID
+
+# Global Configuration settings
+use_global 1 # Use global settings
+DynRange 0.5 # Dynamic range
+RecLen 500 # Acquisition window length in samples
+DCOff 32767 # DC offset
+use_ETTT 1 # Use Extended Trigger Time Tag (ETTT)
+ChanEnableMask 0x1 # Active channels
+
+# Trigger settings
+PostTrig 50 # Post trigger percent
+thresh 10000 # Trigger threshold
+polarity positive # Trigger Polarity
+ChanSelfTrigMask 0x1 # Active channel self-triggers
+ChanSelfTrigMode ACQ_AND_EXTOUT # Channel self trigger propagation
+TrigInMode DISABLED # Trigger In propagation
+SWTrigMode DISABLED # Software trigger propagation
+IOLevel TTL # Trigger IO Level
+
+# Path to individual channel settings file
+chan_set_file configfiles/b1_chan_set.txt
+
+# Output file name or path 
+ofile output_name 
