@@ -1,76 +1,58 @@
-![toolapplication logo](https://user-images.githubusercontent.com/14093889/147496518-f3751cd6-0c57-4dd1-8517-3a02b61e59f5.png)
 
-# ***Please clone/fork this repository to build your own ToolApplication in either ToolFramework or ToolDAQ***
+# BNLDAQ
 
-ToolApplication is a template repository for building your own applications in either: 
-
-  - ToolFramework:- an open source general modular C++ Framework.
-  - ToolDAQ:- DAQ focused frameowrk built on ToolFramework
+BN:DAQ is the data acquisition software for the 1T and 30T WbLS testbeds at Brookhaven National Lab (BNL). It is based on [ToolDAQ](https://github.com/ToolFramework/ToolApplication) and contains code for controlling CAEN digitizers and CAEN high voltage (HV) supply boards.
 
 
 ****************************
 # Installation
 ****************************
 
-There are a few choices for installation, as mentioned this is an application template repository so the idea would be to fork or clone this repo into your own repo first, or build with it as a base. Some containers are provided for installation or trying out the code as well.
-
-1. Using Docker / Singularity
-
-   - For testing a complete install of Toolframework and ToolDAQ can be used by either:
-     - ``` docker run --name=ToolFramework -it toolframework/toolframeworkapp```
-     - ``` docker run --name=ToolDAQ -it tooldaq/tooldaqapp```
-   - If you want a container to use as a base for your own application container you can use either:
-     - ```toolframework/centos7``` which is a lightweight centos build with the prerequisites to install any ToolApplication from source
-     - ```toolframework/core``` which is the same as above but with ToolFrameworkCore already installed in /opt/. This is a useful base for building ToolFramework containers
-     - ```tooldaq/core``` which is the same as above but with ToolFrameworkCore, and ToolDAQframework plus its dependencies of boost and zmq already installed in /opt/. This is a useful base for building ToolDAQ containers
-
-
-2. Install from source
+To install BNLDAQ, follow these steps:
 
    - Install Prerequisites: 
      - RHEL/Centos... ``` yum install git make gcc-c++ zlib-devel dialog ```
      - Debian/Ubuntu.. ``` apt-get install git make g++ libz-dev dialog ```
 
-   - Then clone the repo with ```git clone https://github.com/ToolFramework/ToolApplication.git``` or more likely your own fork
+   - Then clone the repo with ```git clone https://github.com/baldonia/BNLDAQ.git``` or clone your own fork of this 
+     repo.
 
-   - Once clonned please run either:
+   - Then run ```./GetToolDAQ.sh``` to install dependances and files for creating a ToolDAQ app.
 
-     - ```./GetToolFramework.sh``` to install dependances and files for creating a ToolFramework app
-     - ```./GetToolDAQ.sh``` to install dependances and files for creating a ToolDAQ app
-
-(Note: if your doing this from inside one of the pre prepared core containers the core components will already be in the containers. In which case you should instead do:
-
- - ```ln -s /opt ./Dependencies```
-
-followed by either:
-
- - ```./GetToolFramework.sh  --Final```
- - ```./GetToolDAQ.sh --Final```
-
-To set up your application )
-
+   - Finally, run ```make clean``` and ```make``` to build the application.
 
 
 ****************************
-# Concept
+# Usage
 ****************************
 
-The main executable creates a ToolChain which is an object that holds Tools. Tools are added to the ToolChain and then the ToolChain can be told to Initialise Execute and Finalise each Tool in the chain.
+EosDAQ currently has three *Tools*:
 
-The ToolChain also holds a uesr defined DataModel which each Tool has access too and can read ,update and modify. This is the method by which data is passed between Tools.
+  - **ReadBoard** which controls the CAEN digitizers
 
-User Tools can be generated for use in the ToolChain by included scripts.
+  - **HVControl** which controls the CAEN HV supply
 
-For more information consult the ToolFramework manual:
+  - **RunControl** which has commands to configure the digitizers and start/stop the acquisition
 
-https://docs.google.com/document/d/18rgYMOAGt3XiW9i0qN9kfUK1ssbQgLV1gQgG3hyVUoA
+The HV supply needs a JSON configuration file passed to it. Ensure the path to this file is reflected in `configfiles/HV/hvconfig`. You will also need to change paths in `configfiles/test/ToolChainConfig` and `configfiles/test/ToolsConfig` to reflect the paths to relevant configuration files. 
 
-or the Doxygen docs
+When ready to run BNLDAQ, (make sure to do `source Setup.sh` for the first time) run ```./main configfiles/test/ToolChainConfig``` from the main directory. This will start BNLDAQ in the background. In another window, (again source the setup script) run ```./RemoteControl```. Within this program, you can input commands to BNLDAQ.
 
-- https://toolframework.github.io/ToolApplication/
+To receive monitor info from the HV supply, you will need to run the `HV_monitor.py` script. Be sure the address reflected in th HV tool's config file is the same as that in the monitor script.
 
-- https://toolframework.github.io/ToolFrameworkCore/
+In the RemoteControl program, first enter `List` until you see your BNLDAQ toolchain appear. The service ID number should be 0. Next, enter `Command 0 Start`. This will start the toolchain. Again, enter `List` until the SlowControlReceiver appears. *Please note that the ID number could be 0 or 1.* To see the commands you can send to this receiver, enter `Command <Receiver ID number> ?`. Currently the DAQ commands are:
 
-- http://tooldaq.github.io/ToolDAQFramework/
+  - **Config_Digitizers**: Configures the digitizer settings and arms all but the first board. *You must do this first before 
+      the next two commands.*
+  - **Start_Acquisition**: Starts the configuration and acquisition in WbLSdaq
+  - **Stop_Acquisition**: Stops the acquisition in WbLSdaq *only do if the acquisition is running*.
+  - **Read_HVConfig**: Read a JSON HV config. *You must do this each time before configuring the HV supply.*
+  - **Config_HV**: Configure the HV supply using the JSON config file read in with the previous command. *You must do this before the next two commands.*
+  - **PowerOn_HV**: Ramp the enabled channels up to the set voltage.
+  - **PowerOff_HV**: Ramp all channels down to ~0 V.
 
-Copyright (c) 2016 Benjamin Richards (benjamin.richards@warwick.ac.uk)
+To send a command, enter `Command <Receiver ID number> <Command to send>`. 
+
+When finished, enter `Command <main BNLDAQ toolchain ID number> Stop` to stop the toolchain, and then `Command <main BNLDAQ toolchain ID number> Quit` to quit BNLDAQ. To exit the Remote Control program, enter `Quit`. 
+
+Changes to config files do not require BNLDAQ to be recompiled.
