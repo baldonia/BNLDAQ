@@ -1,7 +1,7 @@
 
 # BNLDAQ
 
-BN:DAQ is the data acquisition software for the 1T and 30T WbLS testbeds at Brookhaven National Lab (BNL). It is based on [ToolDAQ](https://github.com/ToolFramework/ToolApplication) and contains code for controlling CAEN digitizers and CAEN high voltage (HV) supply boards.
+BNLDAQ is the data acquisition software for the 1T and 30T WbLS testbeds at Brookhaven National Lab (BNL). It is based on [ToolDAQ](https://github.com/ToolFramework/ToolApplication) and contains code for controlling CAEN digitizers and CAEN high voltage (HV) supply boards.
 
 
 ****************************
