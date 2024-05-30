@@ -9,6 +9,8 @@ PRINT=True
 PLOT=False
 SAVE=True
 
+DIR = '/data/1/WbLS-DATA/phase_3/HV/'
+
 if PLOT:
 	import matplotlib.pyplot as plt
 	from matplotlib.animation import FuncAnimation
@@ -41,7 +43,7 @@ def listen():
 	c = zmq.Context(1)
 	s = c.socket(zmq.SUB)
 	s.setsockopt_string(zmq.SUBSCRIBE, "")
-	s.connect('tcp://130.199.82.231:5432')
+	s.connect('tcp://130.199.33.252:5432')
 
 	global bd_status
 	global temps
@@ -54,6 +56,7 @@ def listen():
 		if SAVE:
 			HVInfo = []
 			TimeStamp = None
+			event_counter = 0
 		while True:
 			r = s.recv()
 			if sys.getsizeof(r)==65:
@@ -116,13 +119,19 @@ def listen():
 					channels[chID] = channel
 				anHVInfo['Channels'] = channels
 				HVInfo.append(anHVInfo)
-				
+				event_counter += 1
+				if (event_counter > 1500):
+					fname = 'HV_Monitoring_' + TimeStamp
+					np.save(DIR + fname, HVInfo, allow_pickle=True)
+					TimeStamp = None
+					HVInfo = []
+					event_counter = 0
 
 				
 
 		if SAVE:
 			fname = 'HV_Monitoring_' + TimeStamp
-			np.save(fname, HVInfo, allow_pickle=True)
+			np.save(DIR + fname, HVInfo, allow_pickle=True)
 def plot():
 	fig, axs = plt.subplots(3, 2)
 	axs = axs.flatten()

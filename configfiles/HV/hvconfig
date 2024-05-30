@@ -2,5 +2,5 @@
 
 verbose 1
 
-JSON_file configfiles/HV/HV_settings.json
-address tcp://130.199.82.231:5432
+JSON_file configfiles/HV/HV_1T_settings.json
+address tcp://130.199.33.252:5432

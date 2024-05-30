@@ -666,7 +666,7 @@ bool HVControl::PowerOff(){
     ElapsedTime += (HVControl::get_time() - CurrentTime);
     CurrentTime = HVControl::get_time();
     ElapsedTimeMon = CurrentTime - HVControl::PrevSendTime;
-    if (ElapsedTimeMon>1000) {
+    if (ElapsedTimeMon>(1000*60)) {
       HVControl::BuildMonitorData();
       HVControl::PrevSendTime = HVControl::get_time();
     }

@@ -407,6 +407,7 @@ bool ReadBoard::Start_Acquisition(int handle) {
   ofile_part = ofile + "_" + timestamp;
   ReadBoard::ofile_part = ofile_part;
   std::string ofile_full = ofile_part + "_0.bin";
+  ReadBoard::file_num = 0;
 
   if (!m_data->outfile.is_open()) {
     m_data->outfile.open(ofile_full, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
@@ -434,8 +435,28 @@ bool ReadBoard::Start_Acquisition(int handle) {
   }
 */
 
+// Set trigger to propagate on first board
+  if (bID == 1){
+    std::string TrigInMode;
+    m_variables.Get("TrigInMode", TrigInMode);
+    if (TrigInMode=="DISABLED") {
+      ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_DISABLED);
+    }
+    else if (TrigInMode=="EXTOUT_ONLY") {
+      ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_EXTOUT_ONLY);
+    }
+    else if (TrigInMode=="ACQ_ONLY") {
+      ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_ACQ_ONLY);
+    }
+    else if (TrigInMode=="ACQ_AND_EXTOUT") {
+      ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT);
+    }
+    else {
+      std::cout<<"TrigInMode must be DISABLED/EXTOUT_ONLY/ACQ_ONLY/ACQ_AND_EXTOUT"<<std::endl;
+      ret = CAEN_DGTZ_GenericError;
+    }
+
 // Arm first board
-  if (bID==1) {
     ret = CAEN_DGTZ_WriteRegister(handle, 0x8100, 0x6);
     if (ret)  {
       std::cout<<"Error arming board 1"<<std::endl;
@@ -480,6 +501,13 @@ bool ReadBoard::Stop_Acquisition(int handle) {
         ReadBoard::tfile.close();
       }
     }
+  }
+
+  ret = CAEN_DGTZ_Reset(handle);
+  if (!ret) std::cout<<"Board "<<ReadBoard::bID<<" reset"<<std::endl;
+  else if (ret) {
+    std::cout<<"Board reset failed!!!"<<std::endl;
+    return false;
   }
 
   return true;
@@ -647,22 +675,23 @@ bool ReadBoard::ConfigureBoard(int handle, Store m_variables) {
       return false;
     }
   }
-
-  if (TrigInMode=="DISABLED") {
-    ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_DISABLED);
-  }
-  else if (TrigInMode=="EXTOUT_ONLY") {
-    ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_EXTOUT_ONLY);
-  }
-  else if (TrigInMode=="ACQ_ONLY") {
-    ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_ACQ_ONLY);
-  }
-  else if (TrigInMode=="ACQ_AND_EXTOUT") {
-    ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT);
-  }
-  else {
-    std::cout<<"TrigInMode must be DISABLED/EXTOUT_ONLY/ACQ_ONLY/ACQ_AND_EXTOUT"<<std::endl;
-    ret = CAEN_DGTZ_GenericError;
+  if (bID != 1){
+    if (TrigInMode=="DISABLED") {
+      ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_DISABLED);
+    }
+    else if (TrigInMode=="EXTOUT_ONLY") {
+      ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_EXTOUT_ONLY);
+    }
+    else if (TrigInMode=="ACQ_ONLY") {
+      ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_ACQ_ONLY);
+    }
+    else if (TrigInMode=="ACQ_AND_EXTOUT") {
+      ret = CAEN_DGTZ_SetExtTriggerInputMode(handle, CAEN_DGTZ_TRGMODE_ACQ_AND_EXTOUT);
+    }
+    else {
+      std::cout<<"TrigInMode must be DISABLED/EXTOUT_ONLY/ACQ_ONLY/ACQ_AND_EXTOUT"<<std::endl;
+      ret = CAEN_DGTZ_GenericError;
+    }
   }
 
   if (SWTrigMode=="DISABLED") {
@@ -1007,7 +1036,7 @@ bool ReadBoard::ConfigureBoard(int handle, Store m_variables) {
   ReadBoard::buffer = buffer;
 
   // Set run start delays to compensate for daisy chain
-  uint32_t delay = 3*(2-bID);
+  uint32_t delay = 3*(5-bID);
   ret = CAEN_DGTZ_WriteRegister(handle, 0x8170, delay);
   if (ret) {
     std::cout<<"Error while setting run delay: "<<ret<<std::endl;
