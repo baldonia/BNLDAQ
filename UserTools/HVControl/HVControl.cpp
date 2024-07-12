@@ -575,7 +575,7 @@ bool HVControl::PowerOn(){
       }
     }
   }
-
+  usleep(300000);
   //Check for stability
   uint64_t CurrentTime = HVControl::get_time();
   uint64_t ElapsedTimeMon, ElapsedTime = 0;

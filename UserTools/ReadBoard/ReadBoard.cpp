@@ -470,6 +470,8 @@ bool ReadBoard::Start_Acquisition(int handle) {
   ReadBoard::PrevRateTime = ReadBoard::get_time();
   ReadBoard::PrevTempTime = ReadBoard::get_time();
 
+  ReadBoard::event_count=0;
+
   return true;
 }
 
@@ -1036,7 +1038,7 @@ bool ReadBoard::ConfigureBoard(int handle, Store m_variables) {
   ReadBoard::buffer = buffer;
 
   // Set run start delays to compensate for daisy chain
-  uint32_t delay = 3*(5-bID);
+  uint32_t delay = 3*(m_data->num_boards-bID);
   ret = CAEN_DGTZ_WriteRegister(handle, 0x8170, delay);
   if (ret) {
     std::cout<<"Error while setting run delay: "<<ret<<std::endl;

@@ -1,6 +1,0 @@
-# Config file for HVControl tool
-
-verbose 1
-
-JSON_file configfiles/HV/HV_1T_settings.json
-address tcp://130.199.33.252:5432
