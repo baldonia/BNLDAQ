@@ -322,6 +322,13 @@ bool ReadBoard::Finalise(){
     }
   }
 
+  ret = CAEN_DGTZ_Reset(handle);
+  if (!ret) std::cout<<"Board "<<ReadBoard::bID<<" reset"<<std::endl;
+  else if (ret) {
+    std::cout<<"Board reset failed!!!"<<std::endl;
+    return false;
+  }
+
   ret = CAEN_DGTZ_CloseDigitizer(handle);
   if (!ret && verbose) std::cout<<"Closed Board "<<bID<<std::endl;
 

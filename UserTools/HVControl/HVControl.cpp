@@ -59,7 +59,7 @@ bool HVControl::Initialise(std::string configfile, DataModel &data){
 
   HVControl::PrevSendTime = HVControl::get_time();
 
-  m_data->SC_vars.InitThreadedReceiver(m_data->context, 8123, 200, true);
+  //m_data->SC_vars.InitThreadedReceiver(m_data->context, 8123, 200, true);
 
   m_data->SC_vars.Add("Read_HVConfig", SlowControlElementType(BUTTON));
   m_data->SC_vars["Read_HVConfig"]->SetValue(false);
@@ -158,7 +158,7 @@ bool HVControl::Execute(){
 
   CurrentTime = HVControl::get_time();
   ElapsedTime = CurrentTime - HVControl::PrevSendTime;
-  if (ElapsedTime>1000) {
+  if (ElapsedTime>(1000*60)) {
     HVControl::BuildMonitorData();
     HVControl::PrevSendTime = HVControl::get_time();
   }
@@ -596,7 +596,7 @@ bool HVControl::PowerOn(){
     ElapsedTime += (HVControl::get_time() - CurrentTime);
     CurrentTime = HVControl::get_time();
     ElapsedTimeMon = CurrentTime - HVControl::PrevSendTime;
-    if (ElapsedTimeMon>1000) {
+    if (ElapsedTimeMon>(1000*60)) {
       HVControl::BuildMonitorData();
       HVControl::PrevSendTime = HVControl::get_time();
     }
