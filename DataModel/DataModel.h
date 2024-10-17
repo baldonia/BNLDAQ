@@ -41,7 +41,7 @@ class DataModel : public DAQDataModelBase {
   //void AddTTree(std::string name,TTree *tree);
   //void DeleteTTree(std::string name,TTree *tree);
   
-  static const int num_boards = 3;
+  static const int num_boards = 5;
 
   int handles[num_boards];
 

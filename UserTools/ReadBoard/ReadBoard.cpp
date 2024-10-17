@@ -7,6 +7,7 @@ ReadBoard::ReadBoard():Tool(){}
 bool ReadBoard::Initialise(std::string configfile, DataModel &data){
 
   if(configfile!="")  m_variables.Initialise(configfile);
+  ReadBoard::configfile = configfile;
 
   m_data= &data;
   m_log= m_data->Log;
@@ -130,6 +131,7 @@ bool ReadBoard::Execute(){
       m_data->config=false;
       return true;
     }
+    if(ReadBoard::configfile!="")  m_variables.Initialise(ReadBoard::configfile);
     temp = ReadBoard::ConfigureBoard(handle, m_variables);
     if (!temp) {
       std::cout<<"Something went wrong with configuring board "<<bID<<"!"<<std::endl;
@@ -544,8 +546,8 @@ bool ReadBoard::ConfigureBoard(int handle, Store m_variables) {
     GrpSelfTrigMask = std::stoi(tmp2, 0, 16);
   }
 
-  uint32_t recLen, postTrig, thresh, DCOff;
-  uint32_t length, mask, percent, reg;
+  uint32_t recLen, postTrig, thresh, DCOff, pulseWidth;
+  uint32_t length, mask, percent, reg, width;
   uint16_t dec_factor;
   int bID, verbose, use_ETTT;
   float dynRange;
@@ -559,6 +561,7 @@ bool ReadBoard::ConfigureBoard(int handle, Store m_variables) {
   m_variables.Get("PostTrig", postTrig);
   m_variables.Get("DynRange", dynRange);
   m_variables.Get("thresh", thresh);
+  m_variables.Get("PulseWidth", pulseWidth);
   m_variables.Get("polarity", polarity);
   m_variables.Get("TrigInMode", TrigInMode);
   m_variables.Get("SWTrigMode", SWTrigMode);
@@ -769,6 +772,14 @@ bool ReadBoard::ConfigureBoard(int handle, Store m_variables) {
       std::cout<<"Error reading IO Level"<<std::endl;
       return false;
     }
+  }
+
+  if (bdname.find("730") != std::string::npos) {
+    ret = CAEN_DGTZ_WriteRegister(handle, 0x8070, pulseWidth);
+    std::cout<<"After write: "<<ret<<std::endl;
+    ret = CAEN_DGTZ_ReadRegister(handle, 0x1070, &width);
+    if (!ret) {std::cout<<"Set pulse width to: "<<width*8<<" ns"<<std::endl;}
+    else {std::cout<<"Error setting pulse width. Error: "<<ret<<std::endl;}
   }
 
   int use_global;

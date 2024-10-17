@@ -43,7 +43,7 @@ class ReadBoard: public Tool {
   int handle, verbose, Nb=0, Ne=0, store_temps, event_count=0;
   int file_num=0, ev_per_file=0;
   char* buffer=NULL;
-  std::string ModelName, ofile_part;
+  std::string ModelName, ofile_part, configfile;
   bool configed=false, acq_started=false;
 
   std::ofstream tfile;
